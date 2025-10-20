@@ -16,7 +16,5 @@ def load_remote_dataset(url, ext="csv"):
 
 
 def get_spotify_dataset():
-    # Para CSV completo de Hugging Face (descarga directa):
-    url = "hf://datasets/maharshipandya/spotify-tracks-dataset/dataset.csv"
-    # Si usas parquet: url = "hf://datasets/maharshipandya/spotify-tracks-dataset/dataset.parquet"
+    url = "https://huggingface.co/datasets/maharshipandya/spotify-tracks-dataset/resolve/main/dataset.csv?download=true"
     return load_remote_dataset(url, ext="csv")
