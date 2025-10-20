@@ -316,7 +316,7 @@ if not st.session_state["logged_in"]:
         if st.session_state["user_id"]:
             st.session_state["logged_in"] = True
             st.success(f"¡Bienvenido/a {st.session_state['user_id']}!")
-            st.experimental_rerun()
+            st.rerun()
         else:
             st.warning("Debes introducir un usuario/alias único.")
 
@@ -360,4 +360,4 @@ else:
     if st.button("Cerrar sesión"):
         for k in ["user_id", "logged_in", "liked_tracks", "disliked_tracks"]:
             st.session_state.pop(k, None)
-        st.experimental_rerun()
+        st.rerun()
