@@ -6,7 +6,7 @@ DB_PATH = "usuarios.db"
 
 
 def init_db():
-    if not os.path.exists(DB_PATH):  # Solo crearlo una vez
+    if not os.path.exists(DB_PATH):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         c.execute(

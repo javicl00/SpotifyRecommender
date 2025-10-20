@@ -3,6 +3,6 @@ pandas
 numpy
 scikit-learn
 altair
-requests
 pyarrow
-numba
+spotipy
+requests
