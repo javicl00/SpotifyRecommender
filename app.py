@@ -14,6 +14,8 @@ import altair as alt
 from backend.recommender import get_recommendations, filter_by_genre
 from backend.matcher import match_favs_with_features
 from utils.fileloader import load_csv
+import streamlit as st
+from backend.db_sqlite import init_db, save_user_profile, load_user_profile
 
 st.set_page_config(page_title="🎧 Recomendador Spotify", layout="wide")
 
@@ -291,3 +293,71 @@ if "favs_df" in st.session_state and "tracks_df" in st.session_state:
 
 else:
     st.warning("Sube ambos archivos para empezar.")
+
+import streamlit as st
+from backend.db_sqlite import init_db, save_user_profile, load_user_profile
+import pandas as pd
+
+init_db()
+
+st.set_page_config(page_title="Spotify Recommender Multiusuario", layout="wide")
+
+if "user_id" not in st.session_state:
+    st.session_state["user_id"] = ""
+if "logged_in" not in st.session_state:
+    st.session_state["logged_in"] = False
+
+if not st.session_state["logged_in"]:
+    st.title("🎧 Spotify Recommender (Login)")
+    st.session_state["user_id"] = st.text_input(
+        "Introduce tu usuario/alias/correo único", key="usuario_login"
+    )
+    if st.button("Empezar sesión"):
+        if st.session_state["user_id"]:
+            st.session_state["logged_in"] = True
+            st.success(f"¡Bienvenido/a {st.session_state['user_id']}!")
+            st.experimental_rerun()
+        else:
+            st.warning("Debes introducir un usuario/alias único.")
+
+else:
+    st.sidebar.success(f"Usuario: {st.session_state['user_id']}")
+
+    # Cargar perfil si existe (likes/dislikes)
+    profile = load_user_profile(st.session_state["user_id"])
+    if profile:
+        if "liked_tracks" not in st.session_state:
+            st.session_state["liked_tracks"] = profile["likes"]
+        if "disliked_tracks" not in st.session_state:
+            st.session_state["disliked_tracks"] = profile["dislikes"]
+
+    # --- Aquí iría el resto de tu app (filtros, recomendaciones, etc) ---
+    st.write("Aquí va tu dashboard y recomendaciones...")
+
+    st.write("Likes actuales:", st.session_state.get("liked_tracks", []))
+    st.write("Dislikes actuales:", st.session_state.get("disliked_tracks", []))
+
+    # Guardar
+    if st.button("Guardar mi perfil ahora"):
+        save_user_profile(
+            st.session_state["user_id"],
+            st.session_state["user_id"],
+            st.session_state.get("liked_tracks", []),
+            st.session_state.get("disliked_tracks", []),
+        )
+        st.success("Perfil guardado correctamente en SQLite.")
+
+    # Recargar
+    if st.button("Recargar mi perfil guardado"):
+        profile = load_user_profile(st.session_state["user_id"])
+        if profile:
+            st.session_state["liked_tracks"] = profile["likes"]
+            st.session_state["disliked_tracks"] = profile["dislikes"]
+            st.success("Perfil recargado!")
+        else:
+            st.warning("Todavía no tienes perfil guardado.")
+
+    if st.button("Cerrar sesión"):
+        for k in ["user_id", "logged_in", "liked_tracks", "disliked_tracks"]:
+            st.session_state.pop(k, None)
+        st.experimental_rerun()
